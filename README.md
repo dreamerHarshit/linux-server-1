@@ -4,16 +4,19 @@ Taking a baseline installation of a Ubuntu Linux distribution on a virtual machi
  Includes installing updates,
  securing it from a number of attack vectors and installing/configuring web and database servers.
 
- ##Server Information
+## Server Information
  - IP Address: 52.42.38.177
  - SSH port: 2200
  - URL of hosted web application: [http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com/](http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com/)
- - SSH connection command: ```ssh -i [key_file_path] grader@52.42.38.177 -p 2200```<br/>
+ - SSH connection command: 
+ ```
+ ssh -i [key_file_path] grader@52.42.38.177 -p 2200
+ ```
  where [key_file_path] is the path to the file containing the supplied private key of the grader user.
 
- ## Configuration Steps
+## Configuration Steps
 
- ### Create New User Named grader And Grant user sudo permissions
+### Create New User Named grader And Grant user sudo permissions
  ```
  # create linux user
  sudo adduser grader
@@ -36,19 +39,19 @@ nano /home/grader/.ssh/authorized_keys
 ```
 
 
- ### Update Installed Packages
+### Update Installed Packages
  ```
  sudo apt-get update
 sudo apt-get upgrade
 ```
 
- ### Change SSH Port From 22 To 2200
+### Change SSH Port From 22 To 2200
  ```
  sudo nano /etc/ssh/sshd_config
  # change line Port 22 to Port 2200
  ```
 
- ### Configure Uncomplicated Firewall
+### Configure Uncomplicated Firewall
  ```
  # close all incoming ports
 sudo ufw default deny incoming
@@ -64,26 +67,26 @@ sudo ufw allow 123/udp
 sudo ufw enable
 ```
 
- ### Configure Local Timezone to UTC
+### Configure Local Timezone to UTC
  Machine already set to UTC
  ```
  sudo dpkg-reconfigure tzdata
  # choose 'None of the above' and then select 'UTC'
  ```
 
- ### Install Apache and mod_wsgi module
+### Install Apache and mod_wsgi module
  ```
  sudo apt-get install apache2 libapache2-mod-wsgi
  ```
 
- ### Install and configure PostgreSQL
+### Install and configure PostgreSQL
  ```
  sudo apt-get install PostgreSQL
  # check that remote connections are not allowed in PostgreSQL config file
  sudo nano /etc/postgresql/9.3/main/pg_hba.config
  ```
 
- ### Create user named catalog that has limited permissions to catalog application database
+### Create user named catalog that has limited permissions to catalog application database
  
  ```
 # create linux user catalog
@@ -100,7 +103,7 @@ postgres=# \q
 postgres:~$ exit
 ```
 
- ### Install git and clone web application  project
+### Install git and clone web application  project
  ```
  sudo apt-get install git
  cd /var/www
@@ -110,7 +113,7 @@ git clone https://github.com/iainbx/item-catalog.git
 echo "RedirectMatch 404 /\.git" > /var/www/.htaccess
  ```
 
- ### Install Python libs required by web application
+### Install Python libs required by web application
  ```
  $ sudo apt-get install python-pip python-dev python-psycopg2
 $ sudo pip install -r /var/www/item-catalog/requirements.txt
@@ -121,12 +124,12 @@ $ sudo pip install -r /var/www/item-catalog/requirements.txt
  # change DATABASE_URI line in file from sqllite to  postgresql://catalog:db_password@localhost/catalog
  ```
 
- ### Create schema and Populate catalog db with sample database
+### Create schema and Populate catalog db with sample database
  ```
  python /var/www/create_sample_data.py
  ```
 
- ### Configure Apache to serve wsgi web app
+### Configure Apache to serve wsgi web app
  create wsgi file
  ```
  sudo nano /var/www/item-catalog/app.wsgi
