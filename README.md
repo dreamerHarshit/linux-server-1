@@ -4,7 +4,7 @@ Taking a baseline installation of a Ubuntu Linux distribution on a virtual machi
  Includes installing updates,
  securing it from a number of attack vectors and installing/configuring web and database servers.
 
- ## Server Information
+ ##Server Information
  - IP Address: 52.42.38.177
  - SSH port: 2200
  - URL of hosted web application: [http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com/](http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com/)
