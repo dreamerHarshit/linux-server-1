@@ -151,11 +151,11 @@ Update the Apache configuration file to serve the web application with WSGI
 ```
 sudo nano /etc/apache2/sites-enabled/000-default.conf
 ```
-add the following line inside the *<VirtualHost \*:80>* element, and save the file.
+add the following line inside the *<VirtualHost \\*:80>* element, and save the file.
 ```
 WSGIScriptAlias / /var/www/item-catalog/app.wsgi
 ```
-Then, restart apache.
+Restart Apache.
 ```
 sudo apache2ctl restart
 ```
@@ -203,4 +203,4 @@ sudo echo -e "\nServerName localhost" >> /etc/apache2/apache2.conf
 - [PosgreSQL Docs](https://www.postgresql.org/docs/9.5/static/index.html)
 - [Apache Docs](https://httpd.apache.org/docs/2.4/)
 - [How To Install and Use PostgreSQL on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-14-04)
-- Stackoverflow and the Readme's of other FSND students on Github were also useful in times of need.
+- Stackoverflow and the Readme's of other FSND students on Github were also useful, in times of need.
