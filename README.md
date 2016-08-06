@@ -48,7 +48,7 @@ sudo apt-get upgrade
 ### Change SSH port from 22 To 2200
  ```
  sudo nano /etc/ssh/sshd_config
- # change the line Port 22 to Port 2200
+ # change the line 'Port 22' to 'Port 2200', and save the file
  ```
 
 ### Configure Uncomplicated Firewall
@@ -89,10 +89,10 @@ The server was already set to UTC timezone, but the following command could be u
 ### Create a user named catalog that has limited permissions to the catalog application database
  
  ```
-# create linux user named catalog
+# create a linux user named catalog
 sudo adduser catalog
 
-# create PostgreSQL role named catalog and database named catalog
+# create a PostgreSQL role named catalog and a database named catalog
 sudo -u postgres -i
 postgres:~$ creatuser catalog
 postgres:~$ createdb catalog
@@ -120,10 +120,10 @@ echo "RedirectMatch 404 /\.git" > /var/www/.htaccess
 sudo apt-get install python-pip python-dev python-psycopg2
 sudo pip install -r /var/www/item-catalog/requirements.txt
 ```
-### Configure the web application to connect to the PostgreSQL database instead of the SQLite database
+### Configure the web application to connect to the PostgreSQL database instead of a SQLite database
  ```
  sudo nano /var/www/item-catalog/config.py
- # change DATABASE_URI line in file from sqllite to postgresql://catalog:db_password@localhost/catalog
+ # change the DATABASE_URI setting in the file from 'sqlite:///catalog.db' to 'postgresql://catalog:db_password@localhost/catalog', and save
  ```
 
 ### Create schema and populate the catalog database with sample data
@@ -136,7 +136,7 @@ Create the web application WSGI file.
  ```
 sudo nano /var/www/item-catalog/app.wsgi
 ```
-add following lines to the file and save.
+add the following lines to the file and save the file.
 ```
 #!/usr/bin/python
 import sys
@@ -151,7 +151,7 @@ Update the Apache configuration file to serve the web application with WSGI
 ```
 sudo nano /etc/apache2/sites-enabled/000-default.conf
 ```
-add the following line inside <VirtialHost *:80> element, and save the file.
+add the following line inside the *<VirtualHost \*:80>* element, and save the file.
 ```
 WSGIScriptAlias / /var/www/item-catalog/app.wsgi
 ```
