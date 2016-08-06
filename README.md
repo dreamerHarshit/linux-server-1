@@ -136,7 +136,7 @@ Create the web application WSGI file.
  ```
 sudo nano /var/www/item-catalog/app.wsgi
 ```
-add the following lines to the file and save the file.
+Add the following lines to the file, and save the file.
 ```
 #!/usr/bin/python
 import sys
@@ -147,11 +147,11 @@ from catalog import app as application
 application.secret_key = 'asecretkey'
 ```
 
-Update the Apache configuration file to serve the web application with WSGI
+Update the Apache configuration file to serve the web application with WSGI.
 ```
 sudo nano /etc/apache2/sites-enabled/000-default.conf
 ```
-add the following line inside the *<VirtualHost \\*:80>* element, and save the file.
+Add the following line inside the `<VirtualHost *:80>` element, and save the file.
 ```
 WSGIScriptAlias / /var/www/item-catalog/app.wsgi
 ```
