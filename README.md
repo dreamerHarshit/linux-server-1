@@ -2,21 +2,21 @@
 Taking a baseline installation of a Ubuntu Linux distribution on a virtual machine on Amazon EC2
  and preparing it to host a web application.<br/>
  Includes installing updates,
- securing it from a number of attack vectors and installing/configuring web and database servers.
+ securing the server from a number of attack vectors, and installing/configuring web and database servers.
 
 ## Server Information
- - IP Address: 52.42.38.177
+ - Public IP Address: 52.42.38.177
  - SSH port: 2200
  - URL of hosted web application: [http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com/](http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com/)
  - SSH connection command: 
  ```
  ssh -i [key_file_path] grader@52.42.38.177 -p 2200
  ```
- where [key_file_path] is the path to the file containing the supplied private key of the grader user.
+ <br/>where [key_file_path] is the path to the file containing the supplied private key of the grader user.
 
 ## Configuration Steps
 
-### Create New User Named grader And Grant user sudo permissions
+### Create new user named *grader* and grant the user sudo permissions
  ```
  # create linux user
  sudo adduser grader
@@ -25,27 +25,27 @@ Taking a baseline installation of a Ubuntu Linux distribution on a virtual machi
  echo "grader ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/grader
 ```
 
-### Enable key based login For User grader
-On local machine, use command ssh-keygen to create public and private keys for the user grader
+### Enable key based login for user *grader*
+On local machine, use the command ssh-keygen to create public and private keys for the user *grader*.
 ```
 ssh-keygen -f ~/.ssh/grader
 ```
-Deploy the public key to the grader user .ssh folder on the server
+Put the public key in the grader user's .ssh folder on the server.
 ```
 su grader
 mkdir /home/grader/.ssh
 nano /home/grader/.ssh/authorized_keys
-# copy public key from local machine and paste into authorized_keys and save
+# copy public key from local machine and paste into authorized_keys file on the server and save
 ```
 
 
-### Update Installed Packages
+### Update installed packages
  ```
- sudo apt-get update
+sudo apt-get update
 sudo apt-get upgrade
 ```
 
-### Change SSH Port From 22 To 2200
+### Change SSH port from 22 To 2200
  ```
  sudo nano /etc/ssh/sshd_config
  # change line Port 22 to Port 2200
@@ -53,7 +53,7 @@ sudo apt-get upgrade
 
 ### Configure Uncomplicated Firewall
  ```
- # close all incoming ports
+# close all incoming ports
 sudo ufw default deny incoming
 # open all outgoing ports
 sudo ufw default allow outgoing
@@ -67,19 +67,19 @@ sudo ufw allow 123/udp
 sudo ufw enable
 ```
 
-### Configure Local Timezone to UTC
- Machine already set to UTC
+### Configure Local timezone to UTC
+The server was already set to UTC timezone, but the following command could be used.
  ```
  sudo dpkg-reconfigure tzdata
  # choose 'None of the above' and then select 'UTC'
  ```
 
-### Install Apache and mod_wsgi module
+### Install the Apache web server and WSGI module
  ```
  sudo apt-get install apache2 libapache2-mod-wsgi
  ```
 
-### Install and configure PostgreSQL
+### Install and configure the PostgreSQL database system
  ```
  sudo apt-get install PostgreSQL
  # check that remote connections are not allowed in PostgreSQL config file
@@ -89,10 +89,10 @@ sudo ufw enable
 ### Create user named catalog that has limited permissions to catalog application database
  
  ```
-# create linux user catalog
+# create linux user named *catalog*
 sudo adduser catalog
 
-# create PostgreSQL role catalog and db catalog
+# create PostgreSQL role named *catalog* and database named *catalog*
 sudo -u postgres -i
 postgres:~$ creatuser catalog
 postgres:~$ createdb catalog
@@ -103,36 +103,38 @@ postgres=# \q
 postgres:~$ exit
 ```
 
-### Install git and clone web application  project
+### Install git and clone the web application project
+Clone the web application to the web server root folder, and ensure that the git
+folder is not accessible from the web server.
  ```
- sudo apt-get install git
- cd /var/www
+sudo apt-get install git
+cd /var/www
 git clone https://github.com/iainbx/item-catalog.git
 
 # ensure git folder is not accessible via web server
 echo "RedirectMatch 404 /\.git" > /var/www/.htaccess
  ```
 
-### Install Python libs required by web application
+### Install the Python libraries required by the web application
  ```
- $ sudo apt-get install python-pip python-dev python-psycopg2
-$ sudo pip install -r /var/www/item-catalog/requirements.txt
+sudo apt-get install python-pip python-dev python-psycopg2
+sudo pip install -r /var/www/item-catalog/requirements.txt
 ```
- ### Configure web app to use PostgreSQL db instead of SQLLite db
+### Configure the web application to connect to PostgreSQL database instead of SQLite database
  ```
  sudo nano /var/www/item-catalog/config.py
- # change DATABASE_URI line in file from sqllite to  postgresql://catalog:db_password@localhost/catalog
+ # change DATABASE_URI line in file from sqllite to postgresql://catalog:db_password@localhost/catalog
  ```
 
-### Create schema and Populate catalog db with sample database
+### Create schema and populate catalog database with sample data
  ```
  python /var/www/create_sample_data.py
  ```
 
-### Configure Apache to serve wsgi web app
- create wsgi file
+### Configure Apache to serve the web application using WSGI
+Create the web application WSGI file.
  ```
- sudo nano /var/www/item-catalog/app.wsgi
+sudo nano /var/www/item-catalog/app.wsgi
 ```
 add following lines:
 ```
@@ -145,6 +147,7 @@ from catalog import app as application
 application.secret_key = 'a secret key'
 ```
 
+Update the Apache configuration to serve the web application with WSGI
 edit /etc/apache2/sites-enabled/000-default.conf
 ```
 sudo nano /etc/apache2/sites-enabled/000-default.conf
@@ -157,33 +160,47 @@ restart apache
 sudo apache2ctl restart
 ```
 
-### Update Authorized Origins For Google and Facebook Logins
-Get the Google Sign-In button working by updating "Authorized JavaScript
-Origins" for the application in the Google Developers Console so it
-includes the following origins (x.x.x.x/x-x-x-x are the IP):
-http://x.x.x.x
-http://ec2-x-x-x-x.us-west-2.compute.amazonaws.com
+### Test the web application
+Browse to the public ip address of the server, [http://52.42.38.177](http://52.42.38.177), and 
+the web application should start up.
+If not, then the command ```sudo tail /var/log/apache2/error.log``` will be useful.
 
-download google_client_secrets.json with new origins and place in app folder
+### Update Google and Facebook authentication
+Update the *Authorized JavaScript Origins* and *Authorized redirect URIs* in the Google developers console 
+for the web application to include the web applications URL http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com.
+Download new *google_client_secrets.json*  file with new origins and place in the web application root folder.
 
-update facebook app domains
+Update the *Valid OAuth redirect URIs* in the Facebook developers console for the web application to include
+ the web applications URL http://ec2-52-42-38-177.us-west-2.compute.amazonaws.com.
 
 
-### Allow apache to write to image upload folder
- by changing owner to apache user
+### Allow Apache to write to the image upload folder
+Change the owner of the upload folder to the Apache user.
  ```
 sudo chown www-data /var/www/item-catalog/catalog/static/uploads
 sudo chmod 744 /var/www/item-catalog/catalog/static/uploads
 ```
 
+### Update Views.py with absolute paths to secrets json files
+The relative paths in Views.py to open the json files containing the Google and Facebook OAuth settings
+did not work with Apache. So I changed the relative paths to absolute paths.
+
 ### Fix sudo warning message
-To fix this, the hostname was added to the loopback address in the /etc/hosts file so that th first line now reads: 127.0.0.1 localhost ip-10-20-47-177
+The sudo command was displaying a warning message *unable to resolve host [ip-10-20-2-241]*.
+So I added the hostname to the loopback address in the /etc/hosts file, so that the line reads: 
+```127.0.0.1 localhost ip-10-20-2-241```
 
 ### Fix apache2ctl warning message
-apache2ctl warning message: 
-"apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1. Set the 'ServerName' directive globally to suppress this message". 
-So I added the line below to/etc/apache2/apache2.conf:
+The apache2ctl command was displaying a warning message: 
+*Could not reliably determine the server's fully qualified domain name, using 127.0.0.1. Set the 'ServerName' directive globally to suppress this message*. 
+So I set the ServerName with the following command.
 ```
-sudo echo "ServerName localhost" >> /etc/apache2/apache2.conf ???
+sudo echo -e "\nServerName localhost" >> /etc/apache2/apache2.conf
+```
 
-
+## References
+[Ask Ubuntu](http://askubuntu.com/)
+[PosgreSQL Docs](https://www.postgresql.org/docs/9.5/static/index.html)
+[Apache Docs](https://httpd.apache.org/docs/2.4/)
+[How To Install and Use PostgreSQL on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-14-04)
+Stackoverflow and the Readme's of other FSND students on Github were also useful in times of need.
