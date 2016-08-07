@@ -22,7 +22,8 @@ Taking a baseline Ubuntu Linux virtual machine that is hosted on Amazon EC2
  sudo adduser grader
 
  # give user sudo permissions
- echo "grader ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/grader
+ # user will be asked for their password when using sudo
+ echo "grader ALL=(ALL) ALL" > /etc/sudoers.d/grader
 ```
 
 ### Enable key based login for the user *grader*
@@ -38,6 +39,14 @@ nano /home/grader/.ssh/authorized_keys
 # copy public key from the local machine and paste into the authorized_keys file on the server, and save
 ```
 
+### Disable remote login of the *root* user
+```
+sudo nano /etc/ssh/sshd_config
+# set PermitRootLogin to no, and save the file
+
+# restart ssh service
+sudo service ssh restart
+```
 
 ### Update installed packages
  ```
